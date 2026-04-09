@@ -5,61 +5,117 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Raspa & Gana Pro</title>
 <style>
-  body { font-family: Arial, sans-serif; background: #f0f2f5; margin:0; padding:0; display:flex; flex-direction:column; align-items:center; }
-  .screen { display:none; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; width:100%; }
-  .active { display:flex; }
-  input { padding:10px; font-size:1rem; margin:10px 0; border-radius:5px; border:1px solid #ccc; width:250px; }
-  button { padding:10px 20px; font-size:1rem; border:none; border-radius:5px; background:#007bff; color:white; cursor:pointer; transition:all 0.3s; }
-  button:hover { background:#0056b3; transform:scale(1.05); }
-  .notification { position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#333; color:#fff; padding:15px 25px; border-radius:10px; opacity:0; transition:opacity 0.5s; z-index:999; }
-  .notification.show { opacity:1; }
-  #ticketModal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); display:none; align-items:center; justify-content:center; z-index:1000; }
-  .modal-content { background:#fff; padding:20px; border-radius:15px; width:90%; max-width:1200px; }
-  .tickets { display:flex; overflow-x:auto; gap:15px; padding:10px; }
-  .ticket { min-width:100px; min-height:150px; background:linear-gradient(135deg,#ffcc00,#ff6600); border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.5rem; cursor:pointer; transition:all 0.5s; }
-  .ticket:hover { transform:scale(1.05) rotate(-2deg); }
-  #canvasScreen { display:none; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; }
-  canvas { border-radius:15px; background:#ccc; }
-  #receiveBtn { display:none; margin-top:20px; padding:10px 20px; border:none; border-radius:10px; background:#28a745; color:#fff; font-size:1rem; cursor:pointer; transition:all 0.3s; }
-  #receiveBtn:hover { transform:scale(1.05); }
-  #loader { display:none; border: 6px solid #f3f3f3; border-top: 6px solid #007bff; border-radius: 50%; width:60px; height:60px; animation: spin 5s linear; margin-top:20px; }
-  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-  #megaBote { position:fixed; top:10px; right:10px; background:#ff4081; color:white; padding:10px 15px; border-radius:10px; font-weight:bold; }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(160deg,#f8b500,#f14e4e);
+  margin:0; padding:0; display:flex; flex-direction:column; align-items:center;
+  min-height:100vh; color:#fff;
+}
+.screen { display:none; flex-direction:column; align-items:center; justify-content:center; width:100%; padding:20px; }
+.active { display:flex; }
+input {
+  padding:12px; font-size:1rem; margin:10px 0; border-radius:10px;
+  border:2px solid #fff; width:250px; text-align:center; outline:none;
+}
+input:focus { border-color:#ffeb3b; background:rgba(255,255,255,0.2); color:#fff; }
+button {
+  padding:12px 25px; font-size:1rem; border:none; border-radius:10px;
+  background:#ffeb3b; color:#333; font-weight:bold; cursor:pointer;
+  transition:all 0.3s; margin:5px;
+}
+button:hover { transform:scale(1.05); background:#fff; color:#f14e4e; }
+.notification {
+  position:fixed; top:20px; left:50%; transform:translateX(-50%);
+  background:rgba(0,0,0,0.85); color:#fff; padding:15px 25px;
+  border-radius:15px; opacity:0; transition:opacity 0.5s; z-index:999;
+  font-weight:bold; text-align:center;
+}
+.notification.show { opacity:1; }
+#ticketModal {
+  position:fixed; top:0; left:0; width:100%; height:100%;
+  background:rgba(0,0,0,0.8); display:none; align-items:center; justify-content:center; z-index:1000;
+}
+.modal-content {
+  background:#222; padding:20px; border-radius:20px; width:90%; max-width:800px;
+  box-shadow:0 5px 20px rgba(0,0,0,0.7); color:#fff; text-align:center;
+}
+.tickets { display:flex; overflow-x:auto; gap:15px; padding:10px; justify-content:center; }
+.ticket {
+  min-width:120px; min-height:180px;
+  background:linear-gradient(135deg,#ffeb3b,#f14e4e);
+  border-radius:20px; box-shadow:0 6px 15px rgba(0,0,0,0.5);
+  display:flex; align-items:center; justify-content:center;
+  font-weight:bold; font-size:1.5rem; cursor:pointer; transition:all 0.5s; color:#222;
+}
+.ticket.used { opacity:0.4; cursor:not-allowed; }
+.ticket:hover { transform:scale(1.05) rotate(-3deg); box-shadow:0 8px 20px rgba(0,0,0,0.8); }
+#canvasScreen { display:none; flex-direction:column; align-items:center; justify-content:center; width:100%; padding:20px; }
+canvas { border-radius:15px; background:#ccc; box-shadow:0 4px 15px rgba(0,0,0,0.5); }
+#progressBar { width:400px; height:15px; background:#ddd; border-radius:10px; margin-top:10px; overflow:hidden; }
+#progress { width:0%; height:100%; background:#28a745; transition:width 0.2s; }
+#receiveBtn {
+  display:none; margin-top:20px; padding:12px 25px; border:none; border-radius:15px;
+  background:#28a745; color:#fff; font-size:1rem; cursor:pointer; font-weight:bold;
+  transition:all 0.3s;
+}
+#receiveBtn:hover { transform:scale(1.05); background:#1e7e34; }
+#loader {
+  display:none; border: 6px solid #f3f3f3; border-top: 6px solid #007bff;
+  border-radius: 50%; width:60px; height:60px; animation: spin 2s linear infinite; margin-top:20px;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+#megaBote {
+  position:fixed; top:10px; right:10px; background:#ff4081;
+  color:white; padding:10px 15px; border-radius:15px; font-weight:bold; font-size:1.1rem;
+  box-shadow:0 4px 15px rgba(0,0,0,0.6);
+}
 </style>
 </head>
 <body>
 
+<!-- PANTALLA DE NOMBRE -->
 <div id="nameScreen" class="screen active">
   <h2>Bienvenido a Raspa & Gana Pro</h2>
+  <p>Por favor ingresa tu nombre o alias para participar.</p>
   <input type="text" id="username" placeholder="Ingresa tu nombre o alias">
   <button onclick="saveName()">Continuar</button>
 </div>
 
+<!-- PANTALLA DE WALLET -->
 <div id="walletScreen" class="screen">
   <h2>Ingresa tu wallet USDT BEP20</h2>
+  <p>Necesitamos tu wallet para poder enviarte los premios.</p>
   <input type="text" id="wallet" placeholder="0x...">
   <button onclick="saveWallet()">Continuar</button>
 </div>
 
+<!-- PANTALLA DE DEPÓSITO -->
 <div id="depositScreen" class="screen">
   <h2>Deposita a la dirección:</h2>
-  <p style="font-weight:bold;">0x3670a0bFfb8b8A6D42177807F8dFd369A3995b9e</p>
+  <p>Envía tu USDT BEP20 a esta dirección:</p>
+  <p style="font-weight:bold; word-break:break-all;">0x3670a0bFfb8b8A6D42177807F8dFd369A3995b9e</p>
+  <p>Después ingresa el hash de tu transacción para validar tu depósito.</p>
   <input type="text" id="txHash" placeholder="Ingresa el hash de tu transacción">
   <button onclick="validateDeposit()">Validar Depósito</button>
   <button id="participateBtn" onclick="openTickets()" disabled>Participar</button>
 </div>
 
+<!-- MODAL DE TICKETS -->
 <div id="ticketModal">
   <div class="modal-content">
     <h2>Selecciona tu ticket</h2>
+    <p>Haz clic en un ticket para rasparlo y descubrir tu premio. Los tickets usados aparecen atenuados.</p>
     <div class="tickets" id="ticketContainer"></div>
     <button onclick="closeTickets()">Cerrar</button>
   </div>
 </div>
 
+<!-- PANTALLA DE CANVAS -->
 <div id="canvasScreen" class="screen">
   <h2>Raspa tu ticket</h2>
+  <p>Usa el mouse o el dedo (en móvil) para raspar la superficie y revelar tu premio.</p>
   <canvas id="ticketCanvas" width="400" height="300"></canvas>
+  <div id="progressBar"><div id="progress"></div></div>
   <button id="receiveBtn" onclick="receivePrize()">Recibir premio</button>
   <div id="loader"></div>
 </div>
@@ -68,151 +124,161 @@
 <div id="megaBote">MEGA BOTE: <span id="megaValue"></span> USDT</div>
 
 <script>
-  // --- LocalStorage y navegación ---
-  const nameScreen = document.getElementById('nameScreen');
-  const walletScreen = document.getElementById('walletScreen');
-  const depositScreen = document.getElementById('depositScreen');
-  const canvasScreen = document.getElementById('canvasScreen');
-  const participateBtn = document.getElementById('participateBtn');
-  const notification = document.getElementById('notification');
-  const megaValue = document.getElementById('megaValue');
+// ELEMENTOS
+const nameScreen = document.getElementById('nameScreen');
+const walletScreen = document.getElementById('walletScreen');
+const depositScreen = document.getElementById('depositScreen');
+const canvasScreen = document.getElementById('canvasScreen');
+const participateBtn = document.getElementById('participateBtn');
+const notification = document.getElementById('notification');
+const megaValue = document.getElementById('megaValue');
+const receiveBtn = document.getElementById('receiveBtn');
+const loader = document.getElementById('loader');
+const progress = document.getElementById('progress');
+const canvas = document.getElementById('ticketCanvas');
+const ctx = canvas.getContext('2d');
+const ticketContainer = document.getElementById('ticketContainer');
+const ticketModal = document.getElementById('ticketModal');
 
-  let selectedTicket = null;
-  let prizeAmount = 0;
+let selectedTicket = null;
+let prizeAmount = 0;
+let isDrawing=false;
+let usedTickets = JSON.parse(localStorage.getItem('usedTickets')) || [];
 
-  // --- MEGA BOTE ---
-  function updateMegaBote() {
-    const base = 492;
-    const daily = 80;
-    const start = new Date('2026-04-09');
-    const today = new Date();
-    const days = Math.floor((today - start)/(1000*60*60*24));
-    megaValue.textContent = base + (daily * days);
+// MEGA BOTE
+function updateMegaBote(){
+  const base=492, daily=80;
+  const start=new Date('2026-04-09');
+  const today=new Date();
+  const days=Math.floor((today-start)/(1000*60*60*24));
+  megaValue.textContent = base + (daily*days);
+}
+updateMegaBote();
+setInterval(updateMegaBote,1000*60*60*24);
+
+// NOTIFICACIONES
+function showNotification(msg){
+  notification.textContent = msg;
+  notification.classList.add('show');
+  setTimeout(()=>notification.classList.remove('show'),3000);
+}
+
+// NOMBRE
+function saveName(){
+  const name=document.getElementById('username').value.trim();
+  if(!name){ showNotification('Ingrese un nombre válido'); return; }
+  localStorage.setItem('username',name);
+  nameScreen.classList.remove('active');
+  walletScreen.classList.add('active');
+}
+
+// WALLET
+function saveWallet(){
+  const wallet=document.getElementById('wallet').value.trim();
+  if(!/^0x[a-fA-F0-9]{40}$/.test(wallet)){ showNotification('Wallet inválida'); return; }
+  localStorage.setItem('wallet',wallet);
+  walletScreen.classList.remove('active');
+  depositScreen.classList.add('active');
+}
+
+// DEPÓSITO
+function validateDeposit(){
+  const hash=document.getElementById('txHash').value.trim();
+  if(!/^[a-fA-F0-9]{64}$/.test(hash)){ showNotification('Hash inválido'); return; }
+  let used=JSON.parse(localStorage.getItem('hashes'))||[];
+  if(used.includes(hash)){ showNotification('Hash ya usado'); return; }
+  used.push(hash);
+  localStorage.setItem('hashes',JSON.stringify(used));
+  showNotification('Depósito validado');
+  participateBtn.disabled=false;
+  localStorage.setItem('depositValidated','true');
+}
+
+// TICKETS
+function openTickets(){
+  ticketContainer.innerHTML='';
+  for(let i=1;i<=20;i++){
+    const t=document.createElement('div');
+    t.classList.add('ticket');
+    t.textContent=i;
+    if(usedTickets.includes(i)){ t.classList.add('used'); t.onclick=null; }
+    else t.onclick=()=>selectTicket(t);
+    ticketContainer.appendChild(t);
   }
-  updateMegaBote();
+  ticketModal.style.display='flex';
+}
+function closeTickets(){ ticketModal.style.display='none'; }
 
-  function showNotification(msg) {
-    notification.textContent = msg;
-    notification.classList.add('show');
-    setTimeout(()=>{ notification.classList.remove('show'); },3000);
-  }
+function selectTicket(ticket){
+  ticket.style.transform='scale(1.8)';
+  setTimeout(()=>{
+    ticket.style.transform='scale(1)';
+    selectedTicket=parseInt(ticket.textContent);
+    usedTickets.push(selectedTicket);
+    localStorage.setItem('usedTickets',JSON.stringify(usedTickets));
+    ticketModal.style.display='none';
+    canvasScreen.classList.add('active');
+    initCanvas();
+    prizeAmount=[25,10,55,250,100,160,390][Math.floor(Math.random()*7)];
+  },500);
+  showNotification('Raspe su ticket para descubrir el premio');
+}
 
-  // --- Nombre ---
-  function saveName() {
-    const name = document.getElementById('username').value.trim();
-    if(!name) { showNotification('Ingrese un nombre válido'); return; }
-    localStorage.setItem('username',name);
-    nameScreen.classList.remove('active');
-    walletScreen.classList.add('active');
-  }
+// CANVAS
+function initCanvas(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='gray';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  isDrawing=false;
+  receiveBtn.style.display='none';
+  progress.style.width='0%';
 
-  // --- Wallet ---
-  function saveWallet() {
-    const wallet = document.getElementById('wallet').value.trim();
-    if(!/^0x[a-fA-F0-9]{40}$/.test(wallet)) { showNotification('Wallet inválida'); return; }
-    localStorage.setItem('wallet',wallet);
-    walletScreen.classList.remove('active');
-    depositScreen.classList.add('active');
-  }
+  canvas.onmousedown=()=>isDrawing=true;
+  canvas.onmouseup=()=>isDrawing=false;
+  canvas.onmousemove=scratch;
+  canvas.ontouchstart=(e)=>{ e.preventDefault(); isDrawing=true; scratch(e.touches[0]); };
+  canvas.ontouchend=(e)=>{ e.preventDefault(); isDrawing=false; };
+  canvas.ontouchmove=(e)=>{ e.preventDefault(); scratch(e.touches[0]); };
+}
 
-  // --- Deposito ---
-  function validateDeposit() {
-    const hash = document.getElementById('txHash').value.trim();
-    if(!/^[a-fA-F0-9]{64}$/.test(hash)) { showNotification('Hash inválido'); return; }
-    let used = JSON.parse(localStorage.getItem('hashes'))||[];
-    if(used.includes(hash)) { showNotification('Hash ya usado'); return; }
-    used.push(hash);
-    localStorage.setItem('hashes',JSON.stringify(used));
-    showNotification('Depósito validado');
-    participateBtn.disabled = false;
-  }
+function scratch(e){
+  if(!isDrawing) return;
+  const rect=canvas.getBoundingClientRect();
+  const x=e.clientX-rect.left;
+  const y=e.clientY-rect.top;
+  ctx.globalCompositeOperation='destination-out';
+  ctx.beginPath();
+  ctx.arc(x,y,20,0,Math.PI*2);
+  ctx.fill();
+  checkPercentage();
+}
 
-  // --- Tickets ---
-  const ticketModal = document.getElementById('ticketModal');
-  const ticketContainer = document.getElementById('ticketContainer');
+function checkPercentage(){
+  const imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
+  let cleared=0;
+  for(let i=3;i<imgData.data.length;i+=4){ if(imgData.data[i]<128) cleared++; }
+  const percent=cleared/imgData.data.length*100;
+  progress.style.width=percent+'%';
+  if(percent>30){ receiveBtn.style.display='block'; }
+}
 
-  function openTickets(){
-    ticketContainer.innerHTML='';
-    for(let i=1;i<=20;i++){
-      const t = document.createElement('div');
-      t.classList.add('ticket');
-      t.textContent=i;
-      t.onclick = ()=>selectTicket(t);
-      ticketContainer.appendChild(t);
-    }
-    ticketModal.style.display='flex';
-  }
+// RECIBIR PREMIO
+function receivePrize(){
+  receiveBtn.style.display='none';
+  loader.style.display='block';
+  setTimeout(()=>{
+    loader.style.display='none';
+    showNotification(`¡Felicidades! Ganaste ${prizeAmount} USDT`);
+  },2000);
+}
 
-  function closeTickets(){ ticketModal.style.display='none'; }
-
-  function selectTicket(ticket){
-    ticket.style.transform='scale(1.8)';
-    setTimeout(()=>{
-      ticket.style.transform='scale(1)';
-      selectedTicket = ticket.textContent;
-      ticketModal.style.display='none';
-      canvasScreen.classList.add('active');
-      initCanvas();
-      prizeAmount = [25,10,55,250,100,160,390][Math.floor(Math.random()*7)];
-    },2000);
-    showNotification('Raspe su ticket para descubrir el premio');
-  }
-
-  // --- Canvas raspeo ---
-  const canvas = document.getElementById('ticketCanvas');
-  const ctx = canvas.getContext('2d');
-  let isDrawing=false;
-
-  function initCanvas(){
-    ctx.fillStyle='gray';
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-    canvas.addEventListener('mousedown',()=>isDrawing=true);
-    canvas.addEventListener('mouseup',()=>isDrawing=false);
-    canvas.addEventListener('mousemove',scratch);
-    canvas.addEventListener('touchstart',(e)=>{ e.preventDefault(); isDrawing=true; scratch(e.touches[0]); });
-    canvas.addEventListener('touchend',(e)=>{ e.preventDefault(); isDrawing=false; });
-    canvas.addEventListener('touchmove',(e)=>{ e.preventDefault(); scratch(e.touches[0]); });
-  }
-
-  function scratch(e){
-    if(!isDrawing) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    ctx.globalCompositeOperation='destination-out';
-    ctx.beginPath();
-    ctx.arc(x,y,15,0,Math.PI*2);
-    ctx.fill();
-    checkPercentage();
-  }
-
-  function checkPercentage(){
-    const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
-    let cleared=0;
-    for(let i=3;i<imgData.data.length;i+=4){ if(imgData.data[i]<128) cleared++; }
-    if(cleared/imgData.data.length>0.3){ document.getElementById('receiveBtn').style.display='block'; }
-  }
-
-  // --- Recibir premio ---
-  function receivePrize(){
-    document.getElementById('receiveBtn').style.display='none';
-    document.getElementById('loader').style.display='block';
-    setTimeout(()=>{
-      document.getElementById('loader').style.display='none';
-      if(Math.random()<0.7){ // 70% chance premio
-        showNotification('Depósito confirmado en su cuenta, revise sus fondos, ¡felicidades!');
-      } else {
-        showNotification('Lo siento, no tuviste suerte 😢');
-      }
-    },5000);
-  }
-
-  // --- Inicialización ---
-  window.onload = ()=>{
-    if(localStorage.getItem('username')) { nameScreen.classList.remove('active'); walletScreen.classList.add('active'); }
-    if(localStorage.getItem('wallet')) { walletScreen.classList.remove('active'); depositScreen.classList.add('active'); }
-  };
+// INICIALIZACIÓN
+window.onload=()=>{
+  if(localStorage.getItem('username')){ nameScreen.classList.remove('active'); walletScreen.classList.add('active'); }
+  if(localStorage.getItem('wallet')){ walletScreen.classList.remove('active'); depositScreen.classList.add('active'); }
+  if(localStorage.getItem('depositValidated')==='true'){ participateBtn.disabled=false; }
+};
 </script>
 
 </body>
-</html>
+    </html>
