@@ -3,246 +3,155 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Raspa & Gana Pro v3.3</title>
+<title>Raspa & Gana Pro</title>
 <style>
-body {margin:0; font-family: Arial,sans-serif; background:#0b0f1a; color:white; overflow-x:hidden;}
-.container {padding:20px; text-align:center;}
-input {padding:12px; border-radius:10px; border:none; width:80%; margin:10px 0;}
-button {padding:12px 20px; border:none; border-radius:10px; background:#00ffcc; color:black; font-weight:bold; cursor:pointer; margin:5px; transition: all 0.3s;}
-button:hover {transform: scale(1.05);}
-.hidden { display:none; }
-.card {background:#121a2a; padding:20px; border-radius:15px; margin:10px 0;}
-.notification {position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#00ffcc; color:black; padding:10px 20px; border-radius:10px; display:none; font-weight:bold; text-align:center;}
-#ticketsModal {position:fixed; top:0; left:0; width:100%; height:100%; backdrop-filter:blur(10px); display:none; justify-content:center; align-items:center; flex-direction:column;}
-.tickets-box {background:#1a2338; padding:20px; border-radius:15px; display:flex; align-items:center; justify-content:center; overflow:hidden; width:90%; position:relative;}
-.ticket {width:100px; height:60px; background:linear-gradient(145deg,#00ffcc,#00a0cc); color:black; margin:0 10px; border-radius:12px; font-weight:bold; font-size:18px; display:flex; justify-content:center; align-items:center; cursor:pointer; transition: transform 0.5s, box-shadow 0.5s; box-shadow:0 0 10px #00ffcc; position:relative;}
-.ticket:hover {transform: scale(1.3) rotate(-2deg); box-shadow:0 0 20px #00ffcc;}
-.ticket.selected {transform: scale(1.6); box-shadow:0 0 30px #00ffcc,0 0 40px #00a0ff inset;}
-.arrow {font-size:40px; color:#00ffcc; cursor:pointer; user-select:none; margin:0 10px;}
-#scratchContainer {position:fixed; top:0; left:0; width:100%; height:100%; backdrop-filter:blur(10px); display:none; justify-content:center; align-items:center; flex-direction:column;}
-canvas {background:#b0b0b0; border-radius:10px; touch-action:none; box-shadow:0 0 10px #00ffcc;}
-#receivePrizeBtn {display:none; padding:15px 25px; font-size:18px; background:#ffdd00; color:black; font-weight:bold; border-radius:12px; margin-top:20px; cursor:pointer;}
-#loading {display:none; width:80px; height:80px; border:8px solid #00ffcc; border-top:8px solid #000; border-radius:50%; animation: spin 1s linear infinite; margin-top:20px;}
-@keyframes spin {0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
-.tickets-wrapper {display:flex; transition: transform 0.5s ease; justify-content:center; align-items:center;}
+  body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f0f0f0; display:flex; flex-direction:column; align-items:center; }
+  #screen { max-width:600px; width:100%; margin-top:20px; text-align:center; }
+  input { padding:10px; margin:10px 0; width:80%; border-radius:5px; border:1px solid #ccc; }
+  button { padding:10px 20px; margin:10px; border:none; border-radius:5px; background:linear-gradient(45deg,#4caf50,#81c784); color:white; cursor:pointer; transition:all 0.3s; }
+  button:hover { transform:scale(1.05); }
+  #ticketsModal { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:90%; max-width:800px; background:white; border-radius:10px; box-shadow:0 5px 20px rgba(0,0,0,0.3); padding:20px; }
+  .carousel { display:flex; overflow-x:auto; gap:10px; }
+  .ticket { min-width:100px; height:150px; background:linear-gradient(135deg,#ffeb3b,#ffc107); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:bold; cursor:pointer; transition:all 0.5s; box-shadow:0 5px 15px rgba(0,0,0,0.2); }
+  .ticket:hover { transform:scale(1.1) rotate(2deg); }
+  #canvasContainer { display:none; margin-top:20px; position:relative; }
+  canvas { border-radius:10px; background:#ccc; touch-action:none; }
+  #recibirBtn { display:none; padding:10px 20px; background:#ff5722; color:white; border:none; border-radius:5px; cursor:pointer; position:absolute; bottom:10px; left:50%; transform:translateX(-50%); }
+  #loader { display:none; border:6px solid #f3f3f3; border-top:6px solid #3498db; border-radius:50%; width:50px; height:50px; animation:spin 1s linear infinite; margin:20px auto; }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+  #notification { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#333; color:white; padding:10px 20px; border-radius:5px; display:none; }
 </style>
 </head>
 <body>
-
-<div class="container" id="start">
-<h2>¿QUIÉN JUEGA?</h2>
-<input id="nameInput" placeholder="Tu nombre o alias">
-<br>
-<button onclick="saveName()">Confirmar</button>
-</div>
-
-<div class="container hidden" id="wallet">
-<h2>Añadir Wallet</h2>
-<input id="walletInput" placeholder="Dirección USDT BEP20">
-<br>
-<button onclick="saveWallet()">Confirmar</button>
-</div>
-
-<div class="container hidden" id="panel">
-<h2 id="userName"></h2>
-<p id="walletText"></p>
-
-<div class="card">
-<p>Para participar debes depositar 1 USDT y validar el hash de la transacción. Cada depósito permite una sola jugada.</p>
-</div>
-
-<input id="hashInput" placeholder="Hash de transacción">
-<br>
-<button onclick="validateHash()">Validar Hash</button>
-<br><br>
-<button onclick="openTickets()">Participar</button>
-<button onclick="showPremios()">Lista de premios</button>
-<h3 id="megaBote"></h3>
+<div id="screen">
+  <h1>Raspa & Gana Pro</h1>
+  <input type="text" id="nameInput" placeholder="Ingresa tu nombre o alias">
+  <input type="text" id="walletInput" placeholder="Ingresa tu wallet USDT BEP20">
+  <button id="participarBtn">Participar</button>
+  <div id="megaBote">MEGA BOTE: <span id="megaBoteValue">Calculando...</span> USDT</div>
 </div>
 
 <div id="ticketsModal">
-<div class="tickets-box">
-<div class="arrow" onclick="prev()">&#8592;</div>
-<div id="tickets" class="tickets-wrapper"></div>
-<div class="arrow" onclick="next()">&#8594;</div>
-</div>
+  <h2>Selecciona tu ticket</h2>
+  <div class="carousel" id="carouselTickets"></div>
 </div>
 
-<div id="scratchContainer">
-<h3 id="resultText"></h3>
-<canvas id="canvas" width="300" height="150"></canvas>
-<button id="receivePrizeBtn" onclick="receivePrize()">Recibir premio</button>
-<div id="loading"></div>
+<div id="canvasContainer">
+  <canvas id="scratchCanvas" width="400" height="200"></canvas>
+  <button id="recibirBtn">Recibir premio</button>
 </div>
 
-<div class="notification" id="notif"></div>
+<div id="loader"></div>
+<div id="notification"></div>
 
 <script>
-let page=0;
-let selectedTicket=null;
-let usedHashes = JSON.parse(localStorage.getItem("usedHashes")||"[]");
-let premios=[0,0.5,1,5,25,50,100];
+const megaBoteBase = 492;
+const megaBoteStart = new Date("2026-04-09");
+const tickets = [25,10,55,250,100,160,390,'MEGA BOTE'];
+let selectedTicket = null;
 
-// Notificaciones
-function notify(msg){
-  let n=document.getElementById("notif");
-  n.innerText=msg; n.style.display="block";
-  setTimeout(()=>n.style.display="none",3000);
+function updateMegaBote() {
+  const days = Math.floor((new Date() - megaBoteStart)/86400000);
+  document.getElementById('megaBoteValue').innerText = megaBoteBase + days*80;
 }
 
-// Guardar nombre
-function saveName(){
-  let name=document.getElementById("nameInput").value.trim();
-  if(!name) return notify("Introduce un nombre");
-  localStorage.setItem("name",name);
-  document.getElementById("start").classList.add("hidden");
-  document.getElementById("wallet").classList.remove("hidden");
+updateMegaBote();
+setInterval(updateMegaBote, 60000);
+
+function showNotification(msg, duration=3000){
+  const notif = document.getElementById('notification');
+  notif.innerText = msg;
+  notif.style.display='block';
+  setTimeout(()=>notif.style.display='none', duration);
 }
 
-// Guardar wallet
-function saveWallet(){
-  let w=document.getElementById("walletInput").value.trim();
-  if(!w.startsWith("0x")||w.length!==42) return notify("Dirección incorrecta");
-  localStorage.setItem("wallet",w);
-  loadPanel();
-}
+const nameInput = document.getElementById('nameInput');
+const walletInput = document.getElementById('walletInput');
+const participarBtn = document.getElementById('participarBtn');
+const ticketsModal = document.getElementById('ticketsModal');
+const carousel = document.getElementById('carouselTickets');
+const canvasContainer = document.getElementById('canvasContainer');
+const canvas = document.getElementById('scratchCanvas');
+const recibirBtn = document.getElementById('recibirBtn');
+const loader = document.getElementById('loader');
+const ctx = canvas.getContext('2d');
 
-// Cargar panel
-function loadPanel(){
-  document.getElementById("wallet").classList.add("hidden");
-  document.getElementById("panel").classList.remove("hidden");
-  document.getElementById("userName").innerText="Bienvenido: "+localStorage.getItem("name");
-  document.getElementById("walletText").innerText="Wallet: "+localStorage.getItem("wallet");
-  calcMega();
-}
+if(localStorage.getItem('username')) nameInput.value = localStorage.getItem('username');
+if(localStorage.getItem('wallet')) walletInput.value = localStorage.getItem('wallet');
 
-// Validar hash
-function validateHash(){
-  let h=document.getElementById("hashInput").value.trim();
-  if(!/^0x[a-fA-F0-9]{64}$/.test(h)) return notify("Hash inválido para BEP20 USDT");
-  if(usedHashes.includes(h)) return notify("Este hash ya fue utilizado");
-  localStorage.setItem("paid","yes");
-  localStorage.setItem("jugado","no");
-  usedHashes.push(h);
-  localStorage.setItem("usedHashes",JSON.stringify(usedHashes));
-  notify("Depósito confirmado, listo para jugar");
-}
-
-// Abrir tickets
-function openTickets(){
-  if(localStorage.getItem("paid")!=="yes") return notify("Debes validar el pago");
-  if(localStorage.getItem("jugado")==="yes") return notify("Ya usaste este depósito");
-  document.getElementById("ticketsModal").style.display="flex";
-  renderTickets();
-}
-
-// Render tickets
-function renderTickets(){
-  let container=document.getElementById("tickets");
-  container.innerHTML="";
-  let start=page*10;
-  for(let i=start;i<start+10;i++){
-    let t=document.createElement("div");
-    t.className="ticket"; t.innerText=i+1;
-    t.onclick=()=>selectTicket(i,t);
-    container.appendChild(t);
+nameInput.addEventListener('input', ()=>localStorage.setItem('username', nameInput.value));
+walletInput.addEventListener('input', ()=>{
+  const val = walletInput.value;
+  if(val.startsWith('0x') && val.length===42){
+    localStorage.setItem('wallet', val);
   }
-}
+});
 
-// Carrusel
-function next(){page++; renderTickets();}
-function prev(){if(page>0){page--; renderTickets();}}
-
-// Selección ticket
-function selectTicket(i,t){
-  selectedTicket=i;
-  t.classList.add("selected");
-  notify("¡Ticket seleccionado! Raspe para descubrir su premio");
-  setTimeout(()=>{
-    document.getElementById("ticketsModal").style.display="none";
-    startScratch();
-  },1500);
-}
-
-// Raspeo
-function startScratch(){
-  let premio=premios[Math.floor(Math.random()*premios.length)];
-  localStorage.setItem("currentPremio",premio);
-  let canvas=document.getElementById("canvas");
-  let ctx=canvas.getContext("2d");
-  ctx.globalCompositeOperation="source-over";
-  ctx.fillStyle="#b0b0b0";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.font="30px Arial"; ctx.fillStyle="black"; ctx.textAlign="center"; ctx.textBaseline="middle";
-  ctx.fillText("💰",canvas.width/2,canvas.height/2);
+participarBtn.addEventListener('click', ()=>{
+  const name = nameInput.value.trim();
+  const wallet = walletInput.value.trim();
+  if(!name || !wallet){ showNotification("Debes ingresar nombre y wallet"); return; }
+  if(!wallet.startsWith('0x') || wallet.length!==42){ showNotification("Wallet inválida"); return; }
   
-  let drawing=false;
-  canvas.onpointerdown=()=>drawing=true;
-  canvas.onpointerup=()=>drawing=false;
-  canvas.onpointermove=(e)=>{
-    if(!drawing) return;
-    ctx.globalCompositeOperation="destination-out";
+  // Simular validación de depósito y hash
+  if(!localStorage.getItem('depositValidated')) localStorage.setItem('depositValidated', 'true');
+  
+  ticketsModal.style.display='block';
+  carousel.innerHTML='';
+  tickets.forEach((t,i)=>{
+    const div = document.createElement('div');
+    div.className='ticket';
+    div.innerText = `Ticket ${i+1}`;
+    div.addEventListener('click', ()=>selectTicket(t,div));
+    carousel.appendChild(div);
+  });
+});
+
+function selectTicket(t,div){
+  selectedTicket = t;
+  div.style.transform='scale(1.8)';
+  showNotification("Raspe su ticket para descubrir el premio",2000);
+  setTimeout(()=>{ div.style.transform='scale(1)'; ticketsModal.style.display='none'; openCanvas(); },2000);
+}
+
+function openCanvas(){
+  canvasContainer.style.display='block';
+  ctx.fillStyle='#999';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  let scratching = false;
+  canvas.addEventListener('pointerdown', ()=>scratching=true);
+  canvas.addEventListener('pointerup', ()=>scratching=false);
+  canvas.addEventListener('pointermove', (e)=>{
+    if(!scratching) return;
+    const rect = canvas.getBoundingClientRect();
+    ctx.globalCompositeOperation='destination-out';
     ctx.beginPath();
-    let rect=canvas.getBoundingClientRect();
-    let x=e.clientX-rect.left, y=e.clientY-rect.top;
-    ctx.arc(x,y,15,0,2*Math.PI);
+    ctx.arc(e.clientX-rect.left,e.clientY-rect.top,15,0,2*Math.PI);
     ctx.fill();
-    checkScratchPercentage(ctx,canvas,premio);
-  }
-  document.getElementById("resultText").innerText="Raspe para descubrir su premio";
+    ctx.closePath();
+    checkScratch();
+  });
 }
 
-// Verificar raspeo
-function checkScratchPercentage(ctx,canvas,premio){
-  let imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
-  let pixels=imageData.data;
-  let transparent=0;
-  for(let i=3;i<pixels.length;i+=4){if(pixels[i]===0) transparent++;}
-  let percent=transparent/(canvas.width*canvas.height)*100;
-  if(percent>80) {
-    document.getElementById("receivePrizeBtn").style.display="block";
-    if(premio>0){
-      ctx.globalCompositeOperation="source-over";
-      ctx.fillStyle="black";
-      ctx.fillText(premio+" USDT",canvas.width/2,canvas.height/2);
-    } else {
-      notify("Lo siento, no tuviste suerte 😢");
-    }
-  }
+function checkScratch(){
+  const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
+  let cleared=0;
+  for(let i=0;i<imgData.data.length;i+=4) if(imgData.data[i+3]<128) cleared++;
+  const percent = cleared/(canvas.width*canvas.height)*100;
+  if(percent>80) recibirBtn.style.display='block';
 }
 
-// Recibir premio
-function receivePrize(){
-  document.getElementById("receivePrizeBtn").style.display="none";
-  document.getElementById("loading").style.display="block";
+recibirBtn.addEventListener('click', ()=>{
+  recibirBtn.style.display='none';
+  loader.style.display='block';
   setTimeout(()=>{
-    document.getElementById("loading").style.display="none";
-    let premio=localStorage.getItem("currentPremio");
-    notify(premio>0 ? "Depósito confirmado en su cuenta. Felicidades! 🎉" : "Lo siento, no tuviste suerte 😢");
-    localStorage.setItem("jugado","yes");
-    localStorage.setItem("paid","no");
+    loader.style.display='none';
+    canvasContainer.style.display='none';
+    if(selectedTicket==='MEGA BOTE') selectedTicket=document.getElementById('megaBoteValue').innerText;
+    showNotification(selectedTicket ? `Depósito confirmado en su cuenta, revise sus fondos, ¡felicidades!` : "Lo siento, no tuviste suerte 😢");
   },5000);
-}
-
-// Mega bote
-function calcMega(){
-  let startDate=new Date("2026-04-09");
-  let now=new Date();
-  let days=Math.floor((now-startDate)/(1000*60*60*24));
-  let value=492+(days*80);
-  document.getElementById("megaBote").innerText="MEGA BOTE: "+value+" USDT";
-}
-
-// Lista premios
-function showPremios(){notify("Premios: 0.5,1,5,25,50,100 + MEGA BOTE");}
-
-// OnLoad
-window.onload=()=>{
-  if(localStorage.getItem("name")){
-    if(localStorage.getItem("wallet")) loadPanel();
-    else {document.getElementById("start").classList.add("hidden"); document.getElementById("wallet").classList.remove("hidden");}
-  }
-}
+});
 </script>
 </body>
 </html>
