@@ -184,7 +184,11 @@ function saveWallet(){
 // DEPÓSITO
 function validateDeposit(){
   const hash=document.getElementById('txHash').value.trim();
-  if(!/^[a-fA-F0-9]{64}$/.test(hash)){ showNotification('Hash inválido'); return; }
+  // Validación correcta para BEP20: 0x + 64 caracteres hexadecimales
+  if(!/^0x[a-fA-F0-9]{64}$/.test(hash)){ 
+    showNotification('Hash inválido. Debe iniciar con 0x y tener 64 caracteres hexadecimales.');
+    return; 
+  }
   let used=JSON.parse(localStorage.getItem('hashes'))||[];
   if(used.includes(hash)){ showNotification('Hash ya usado'); return; }
   used.push(hash);
@@ -281,4 +285,4 @@ window.onload=()=>{
 </script>
 
 </body>
-    </html>
+</html>
