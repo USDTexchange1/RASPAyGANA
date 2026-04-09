@@ -3,62 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Raspa & Gana Pro v3.1</title>
+<title>Raspa & Gana Pro v3.3</title>
 <style>
-/* --- Reset y estilo base --- */
-body {
-  margin:0; font-family: Arial, sans-serif;
-  background:#0b0f1a; color:white; overflow-x:hidden;
-}
+body {margin:0; font-family: Arial,sans-serif; background:#0b0f1a; color:white; overflow-x:hidden;}
 .container {padding:20px; text-align:center;}
 input {padding:12px; border-radius:10px; border:none; width:80%; margin:10px 0;}
-button {
-  padding:12px 20px; border:none; border-radius:10px;
-  background:#00ffcc; color:black; font-weight:bold;
-  cursor:pointer; margin:5px; transition: all 0.3s;
-}
+button {padding:12px 20px; border:none; border-radius:10px; background:#00ffcc; color:black; font-weight:bold; cursor:pointer; margin:5px; transition: all 0.3s;}
 button:hover {transform: scale(1.05);}
 .hidden { display:none; }
 .card {background:#121a2a; padding:20px; border-radius:15px; margin:10px 0;}
-/* --- Modal tickets --- */
-#ticketsModal {
-  position:fixed; top:0; left:0; width:100%; height:100%;
-  backdrop-filter:blur(10px); display:none; justify-content:center; align-items:center;
-  flex-direction:column; transition: all 0.5s;
-}
-.tickets-box {
-  background:#1a2338; padding:20px; border-radius:15px;
-  display:flex; align-items:center; justify-content:center; overflow:hidden;
-}
-.ticket {
-  width:60px; height:60px; background:#00ffcc;
-  margin:5px; display:inline-flex; align-items:center; justify-content:center;
-  border-radius:10px; cursor:pointer; font-weight:bold; transition: all 0.3s;
-  box-shadow:0 0 5px #00ffcc;
-}
-.ticket:hover {
-  transform: scale(1.4) rotate(-5deg);
-  box-shadow:0 0 15px #00ffcc,0 0 20px #00ffcc inset;
-}
-/* --- Raspeo --- */
-#scratchContainer {
-  position:fixed; top:0; left:0; width:100%; height:100%;
-  backdrop-filter:blur(10px); display:none; justify-content:center; align-items:center; flex-direction:column;
-}
-canvas {background:gray; border-radius:10px; touch-action:none;}
-/* --- Notificaciones --- */
-.notification {
-  position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
-  background:#00ffcc; color:black; padding:10px 20px; border-radius:10px; display:none;
-  font-weight:bold;
-}
-/* --- Animación tickets carrusel --- */
-.tickets-wrapper {display:flex; transition: transform 0.5s ease;}
+.notification {position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#00ffcc; color:black; padding:10px 20px; border-radius:10px; display:none; font-weight:bold; text-align:center;}
+#ticketsModal {position:fixed; top:0; left:0; width:100%; height:100%; backdrop-filter:blur(10px); display:none; justify-content:center; align-items:center; flex-direction:column;}
+.tickets-box {background:#1a2338; padding:20px; border-radius:15px; display:flex; align-items:center; justify-content:center; overflow:hidden; width:90%; position:relative;}
+.ticket {width:100px; height:60px; background:linear-gradient(145deg,#00ffcc,#00a0cc); color:black; margin:0 10px; border-radius:12px; font-weight:bold; font-size:18px; display:flex; justify-content:center; align-items:center; cursor:pointer; transition: transform 0.5s, box-shadow 0.5s; box-shadow:0 0 10px #00ffcc; position:relative;}
+.ticket:hover {transform: scale(1.3) rotate(-2deg); box-shadow:0 0 20px #00ffcc;}
+.ticket.selected {transform: scale(1.6); box-shadow:0 0 30px #00ffcc,0 0 40px #00a0ff inset;}
+.arrow {font-size:40px; color:#00ffcc; cursor:pointer; user-select:none; margin:0 10px;}
+#scratchContainer {position:fixed; top:0; left:0; width:100%; height:100%; backdrop-filter:blur(10px); display:none; justify-content:center; align-items:center; flex-direction:column;}
+canvas {background:#b0b0b0; border-radius:10px; touch-action:none; box-shadow:0 0 10px #00ffcc;}
+#receivePrizeBtn {display:none; padding:15px 25px; font-size:18px; background:#ffdd00; color:black; font-weight:bold; border-radius:12px; margin-top:20px; cursor:pointer;}
+#loading {display:none; width:80px; height:80px; border:8px solid #00ffcc; border-top:8px solid #000; border-radius:50%; animation: spin 1s linear infinite; margin-top:20px;}
+@keyframes spin {0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+.tickets-wrapper {display:flex; transition: transform 0.5s ease; justify-content:center; align-items:center;}
 </style>
 </head>
 <body>
 
-<!-- --- Pantalla inicial --- -->
 <div class="container" id="start">
 <h2>¿QUIÉN JUEGA?</h2>
 <input id="nameInput" placeholder="Tu nombre o alias">
@@ -66,7 +36,6 @@ canvas {background:gray; border-radius:10px; touch-action:none;}
 <button onclick="saveName()">Confirmar</button>
 </div>
 
-<!-- --- Wallet --- -->
 <div class="container hidden" id="wallet">
 <h2>Añadir Wallet</h2>
 <input id="walletInput" placeholder="Dirección USDT BEP20">
@@ -74,7 +43,6 @@ canvas {background:gray; border-radius:10px; touch-action:none;}
 <button onclick="saveWallet()">Confirmar</button>
 </div>
 
-<!-- --- Panel principal --- -->
 <div class="container hidden" id="panel">
 <h2 id="userName"></h2>
 <p id="walletText"></p>
@@ -92,37 +60,37 @@ canvas {background:gray; border-radius:10px; touch-action:none;}
 <h3 id="megaBote"></h3>
 </div>
 
-<!-- --- Modal Tickets --- -->
 <div id="ticketsModal">
 <div class="tickets-box">
-<button onclick="prev()">⬅️</button>
+<div class="arrow" onclick="prev()">&#8592;</div>
 <div id="tickets" class="tickets-wrapper"></div>
-<button onclick="next()">➡️</button>
+<div class="arrow" onclick="next()">&#8594;</div>
 </div>
 </div>
 
-<!-- --- Raspeo --- -->
 <div id="scratchContainer">
 <h3 id="resultText"></h3>
 <canvas id="canvas" width="300" height="150"></canvas>
+<button id="receivePrizeBtn" onclick="receivePrize()">Recibir premio</button>
+<div id="loading"></div>
 </div>
 
-<!-- --- Notificaciones --- -->
 <div class="notification" id="notif"></div>
 
 <script>
-// --- Variables Globales ---
 let page=0;
+let selectedTicket=null;
 let usedHashes = JSON.parse(localStorage.getItem("usedHashes")||"[]");
+let premios=[0,0.5,1,5,25,50,100];
 
-// --- Notificaciones ---
+// Notificaciones
 function notify(msg){
   let n=document.getElementById("notif");
   n.innerText=msg; n.style.display="block";
   setTimeout(()=>n.style.display="none",3000);
 }
 
-// --- Nombre de usuario ---
+// Guardar nombre
 function saveName(){
   let name=document.getElementById("nameInput").value.trim();
   if(!name) return notify("Introduce un nombre");
@@ -131,7 +99,7 @@ function saveName(){
   document.getElementById("wallet").classList.remove("hidden");
 }
 
-// --- Wallet ---
+// Guardar wallet
 function saveWallet(){
   let w=document.getElementById("walletInput").value.trim();
   if(!w.startsWith("0x")||w.length!==42) return notify("Dirección incorrecta");
@@ -139,7 +107,7 @@ function saveWallet(){
   loadPanel();
 }
 
-// --- Panel Principal ---
+// Cargar panel
 function loadPanel(){
   document.getElementById("wallet").classList.add("hidden");
   document.getElementById("panel").classList.remove("hidden");
@@ -148,7 +116,7 @@ function loadPanel(){
   calcMega();
 }
 
-// --- Validar Hash ---
+// Validar hash
 function validateHash(){
   let h=document.getElementById("hashInput").value.trim();
   if(!/^0x[a-fA-F0-9]{64}$/.test(h)) return notify("Hash inválido para BEP20 USDT");
@@ -160,7 +128,7 @@ function validateHash(){
   notify("Depósito confirmado, listo para jugar");
 }
 
-// --- Abrir Tickets ---
+// Abrir tickets
 function openTickets(){
   if(localStorage.getItem("paid")!=="yes") return notify("Debes validar el pago");
   if(localStorage.getItem("jugado")==="yes") return notify("Ya usaste este depósito");
@@ -168,7 +136,7 @@ function openTickets(){
   renderTickets();
 }
 
-// --- Render Tickets ---
+// Render tickets
 function renderTickets(){
   let container=document.getElementById("tickets");
   container.innerHTML="";
@@ -176,30 +144,38 @@ function renderTickets(){
   for(let i=start;i<start+10;i++){
     let t=document.createElement("div");
     t.className="ticket"; t.innerText=i+1;
-    t.onclick=()=>selectTicket(i);
+    t.onclick=()=>selectTicket(i,t);
     container.appendChild(t);
   }
 }
 
-// --- Carrusel ---
-function next(){if(page<1){page++; renderTickets();}}
+// Carrusel
+function next(){page++; renderTickets();}
 function prev(){if(page>0){page--; renderTickets();}}
 
-// --- Selección Ticket ---
-function selectTicket(i){
-  document.getElementById("ticketsModal").style.display="none";
-  document.getElementById("scratchContainer").style.display="flex";
-  document.getElementById("resultText").innerText="Raspa para descubrir";
-  startScratch();
+// Selección ticket
+function selectTicket(i,t){
+  selectedTicket=i;
+  t.classList.add("selected");
+  notify("¡Ticket seleccionado! Raspe para descubrir su premio");
+  setTimeout(()=>{
+    document.getElementById("ticketsModal").style.display="none";
+    startScratch();
+  },1500);
 }
 
-// --- Raspeo ---
+// Raspeo
 function startScratch(){
-  let premios=[0,0.5,1,5];
   let premio=premios[Math.floor(Math.random()*premios.length)];
+  localStorage.setItem("currentPremio",premio);
   let canvas=document.getElementById("canvas");
   let ctx=canvas.getContext("2d");
-  ctx.fillStyle="gray"; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.globalCompositeOperation="source-over";
+  ctx.fillStyle="#b0b0b0";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.font="30px Arial"; ctx.fillStyle="black"; ctx.textAlign="center"; ctx.textBaseline="middle";
+  ctx.fillText("💰",canvas.width/2,canvas.height/2);
+  
   let drawing=false;
   canvas.onpointerdown=()=>drawing=true;
   canvas.onpointerup=()=>drawing=false;
@@ -211,16 +187,44 @@ function startScratch(){
     let x=e.clientX-rect.left, y=e.clientY-rect.top;
     ctx.arc(x,y,15,0,2*Math.PI);
     ctx.fill();
+    checkScratchPercentage(ctx,canvas,premio);
   }
-  setTimeout(()=>{
-    document.getElementById("resultText").innerText = premio>0 ? "¡Ganaste "+premio+" USDT 🎉!" : "No ganaste";
-    localStorage.setItem("jugado","yes");
-    localStorage.setItem("resultado",premio);
-    localStorage.setItem("paid","no");
-  },3000);
+  document.getElementById("resultText").innerText="Raspe para descubrir su premio";
 }
 
-// --- MEGA BOTE ---
+// Verificar raspeo
+function checkScratchPercentage(ctx,canvas,premio){
+  let imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
+  let pixels=imageData.data;
+  let transparent=0;
+  for(let i=3;i<pixels.length;i+=4){if(pixels[i]===0) transparent++;}
+  let percent=transparent/(canvas.width*canvas.height)*100;
+  if(percent>80) {
+    document.getElementById("receivePrizeBtn").style.display="block";
+    if(premio>0){
+      ctx.globalCompositeOperation="source-over";
+      ctx.fillStyle="black";
+      ctx.fillText(premio+" USDT",canvas.width/2,canvas.height/2);
+    } else {
+      notify("Lo siento, no tuviste suerte 😢");
+    }
+  }
+}
+
+// Recibir premio
+function receivePrize(){
+  document.getElementById("receivePrizeBtn").style.display="none";
+  document.getElementById("loading").style.display="block";
+  setTimeout(()=>{
+    document.getElementById("loading").style.display="none";
+    let premio=localStorage.getItem("currentPremio");
+    notify(premio>0 ? "Depósito confirmado en su cuenta. Felicidades! 🎉" : "Lo siento, no tuviste suerte 😢");
+    localStorage.setItem("jugado","yes");
+    localStorage.setItem("paid","no");
+  },5000);
+}
+
+// Mega bote
 function calcMega(){
   let startDate=new Date("2026-04-09");
   let now=new Date();
@@ -229,10 +233,10 @@ function calcMega(){
   document.getElementById("megaBote").innerText="MEGA BOTE: "+value+" USDT";
 }
 
-// --- Lista Premios ---
-function showPremios(){notify("Premios: 25,50,75,100,150,250,350 + MEGA BOTE");}
+// Lista premios
+function showPremios(){notify("Premios: 0.5,1,5,25,50,100 + MEGA BOTE");}
 
-// --- OnLoad ---
+// OnLoad
 window.onload=()=>{
   if(localStorage.getItem("name")){
     if(localStorage.getItem("wallet")) loadPanel();
